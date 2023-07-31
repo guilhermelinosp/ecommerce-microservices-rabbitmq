@@ -10,7 +10,7 @@ namespace ECommerce.API.Repositories.Context
             ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.TrackAll;
             ChangeTracker.LazyLoadingEnabled = false;
             ChangeTracker.DetectChanges();
-            Database.SetCommandTimeout(300);
+            Database.SetCommandTimeout(3000);
             Database.EnsureCreated();
         }
 
@@ -18,11 +18,19 @@ namespace ECommerce.API.Repositories.Context
         public DbSet<CartHeader>? CartHeaders { get; set; }
         public DbSet<CartDetail>? CartDetails { get; set; }
         public DbSet<Coupon>? Coupons { get; set; }
+        public DbSet<OrderDetail>? OrderDetails { get; set; }
+        public DbSet<OrderHeader>? OrderHeaders { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
 
+        }
+
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            optionsBuilder.EnableSensitiveDataLogging();
+            optionsBuilder.EnableDetailedErrors();
         }
     }
 }

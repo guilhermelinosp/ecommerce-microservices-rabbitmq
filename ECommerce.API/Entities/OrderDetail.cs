@@ -3,18 +3,16 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ECommerce.API.Entities
 {
-    [Table("TB_CARD_DETAIL")]
-    public class CartDetail
+    [Table("TB_ORDER_DETAIL")]
+    public class OrderDetail
     {
         [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
-        [ForeignKey("CartHeaderId")]
-        public int CartHeaderId { get; set; }
-        public virtual CartHeader? CartHeader { get; set; }
-        [ForeignKey("ProductId")]
+        public int OrderHeaderId { get; set; }
+        public virtual required OrderHeader OrderHeader { get; set; }
         public int ProductId { get; set; }
-        public virtual Product? Product { get; set; }
         public int Count { get; set; }
-
+        public string? ProductName { get; set; }
+        public decimal? Price { get; set; }
     }
 }

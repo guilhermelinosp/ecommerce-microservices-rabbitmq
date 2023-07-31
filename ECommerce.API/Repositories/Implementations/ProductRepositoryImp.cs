@@ -1,6 +1,4 @@
-﻿using AutoMapper;
-using ECommerce.API.DTOs;
-using ECommerce.API.Entities;
+﻿using ECommerce.API.Entities;
 using ECommerce.API.Repositories.Context;
 using Microsoft.EntityFrameworkCore;
 
@@ -9,12 +7,10 @@ namespace ECommerce.API.Repositories.Implementations
     public class ProductRepositoryImp : IProductRepository
     {
         private readonly AppDbContext _context;
-        private readonly IMapper _mapper;
 
-        public ProductRepositoryImp(AppDbContext context, IMapper mapper)
+        public ProductRepositoryImp(AppDbContext context)
         {
             _context = context;
-            _mapper = mapper;
         }
 
         public async Task<IEnumerable<Product>> FindAll()
@@ -27,13 +23,13 @@ namespace ECommerce.API.Repositories.Implementations
             return await _context.Products!.FirstOrDefaultAsync(p => p.Id == id);
         }
 
-        public async Task CreateProduct(ProductDto product)
+        public async Task CreateProduct(Product product)
         {
-            await _context.Products!.AddAsync(_mapper.Map<Product>(product));
+            await _context.Products!.AddAsync(product);
             await _context.SaveChangesAsync();
         }
 
-        public async Task UpdateProduct(ProductDto product, int id)
+        public async Task UpdateProduct(Product product, int id)
         {
             var findProduct = await _context.Products!.FirstOrDefaultAsync(p => p.Id == id);
 

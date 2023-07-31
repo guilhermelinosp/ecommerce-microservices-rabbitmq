@@ -1,6 +1,4 @@
-﻿using AutoMapper;
-using ECommerce.API.DTOs;
-using ECommerce.API.Entities;
+﻿using ECommerce.API.Entities;
 using ECommerce.API.Repositories.Context;
 using Microsoft.EntityFrameworkCore;
 
@@ -9,12 +7,10 @@ namespace ECommerce.API.Repositories.Implementations
     public class CartRepositoryImp : ICartRepository
     {
         private readonly AppDbContext _context;
-        private readonly IMapper _mapper;
 
-        public CartRepositoryImp(AppDbContext context, IMapper mapper)
+        public CartRepositoryImp(AppDbContext context)
         {
             _context = context;
-            _mapper = mapper;
         }
 
         public async Task CleanCart(int userId)
@@ -28,11 +24,10 @@ namespace ECommerce.API.Repositories.Implementations
             }
         }
 
-        public async Task CreateCart(CartDto cart)
+        public async Task CreateCart(Cart cart)
         {
-            var mapper = _mapper.Map<Cart>(cart);
-            var cartDatail = mapper.CartDetail!.FirstOrDefault()!;
-            var cartHeader = mapper.CartHeader!;
+            var cartDatail = cart.CartDetail!.FirstOrDefault()!;
+            var cartHeader = cart.CartHeader!;
 
             var product = await _context.Products!.FirstOrDefaultAsync(p => p.Id == cartDatail.ProductId);
             if (product == null)
@@ -53,7 +48,7 @@ namespace ECommerce.API.Repositories.Implementations
             }
         }
 
-        public async Task<CartDto> FindByUserId(int userId)
+        public async Task<Cart> FindByUserId(int userId)
         {
             var cart = new Cart()
             {
@@ -64,14 +59,13 @@ namespace ECommerce.API.Repositories.Implementations
                 .Where(c => c.CartHeaderId == cart.CartHeader!.Id)
                 .Include(c => c.Product);
 
-            return _mapper.Map<CartDto>(cart);
+            return cart;
         }
 
-        public async Task UpdateCart(CartDto cart)
+        public async Task UpdateCart(Cart cart)
         {
-            var mapper = _mapper.Map<Cart>(cart);
-            var cartDatail = mapper.CartDetail!.FirstOrDefault()!;
-            var cartHeader = mapper.CartHeader!;
+            var cartDatail = cart.CartDetail!.FirstOrDefault()!;
+            var cartHeader = cart.CartHeader!;
 
             var cartHeaderExist = await _context.CartHeaders!.FirstOrDefaultAsync(c => c.UserId == cartHeader.UserId);
             if (cartHeaderExist != null)
@@ -115,14 +109,26 @@ namespace ECommerce.API.Repositories.Implementations
             }
         }
 
-        public Task ApplyCoupon(int userId, string couponCode)
+        public async Task ApplyCoupon(int userId, string couponCode)
         {
-            throw new NotImplementedException();
+            var header = await _context.CartHeaders!.FirstOrDefaultAsync(c => c.UserId == userId);
+            if (header != null)
+            {
+                header.CouponCode = couponCode;
+                _context.CartHeaders!.Update(header);
+                await _context.SaveChangesAsync();
+            }
         }
 
-        public Task RemoveCoupon(int userId)
+        public async Task RemoveCoupon(int userId)
         {
-            throw new NotImplementedException();
+            var header = await _context.CartHeaders!.FirstOrDefaultAsync(c => c.UserId == userId);
+            if (header != null)
+            {
+                header.CouponCode = "";
+                _context.CartHeaders!.Update(header);
+                await _context.SaveChangesAsync();
+            }
         }
     }
 }

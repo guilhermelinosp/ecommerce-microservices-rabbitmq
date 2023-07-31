@@ -1,8 +1,9 @@
-using ECommerce.API.Mappings;
 using ECommerce.API.Repositories;
 using ECommerce.API.Repositories.Context;
 using ECommerce.API.Repositories.Implementations;
+using ECommerce.API.ServicesExternal;
 using Microsoft.EntityFrameworkCore;
+using RabbitMQ.Client;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,9 +19,23 @@ builder.Services.AddDbContext<AppDbContext>(opt => opt.UseSqlServer(configuratio
 builder.Services.AddScoped<IProductRepository, ProductRepositoryImp>();
 builder.Services.AddScoped<ICartRepository, CartRepositoryImp>();
 builder.Services.AddScoped<ICouponRepository, CouponRepositoryImp>();
+builder.Services.AddScoped<IOrderRepository, OrderRepositoryImp>();
 
-builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
-builder.Services.AddSingleton(AutoMapping.Initialize().CreateMapper());
+builder.Services.AddTransient<IModel>(_ =>
+{
+    var factory = new ConnectionFactory
+    {
+        HostName = configuration["RabbitMq:HostName"],
+        UserName = configuration["RabbitMq:UserName"],
+        Password = configuration["RabbitMq:Password"],
+    };
+
+    var connection = factory.CreateConnection();
+    return connection.CreateModel();
+});
+
+builder.Services.AddTransient<RabbitMqProducerImp>();
+
 
 
 var app = builder.Build();

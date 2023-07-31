@@ -1,4 +1,4 @@
-﻿using ECommerce.API.DTOs;
+﻿using ECommerce.API.Entities;
 using ECommerce.API.Repositories;
 using Microsoft.AspNetCore.Mvc;
 
@@ -22,7 +22,7 @@ namespace ECommerce.API.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateProduct(ProductDto product)
+        public async Task<IActionResult> CreateProduct(Product product)
         {
             await _repository.CreateProduct(product);
             return Ok();
@@ -35,7 +35,7 @@ namespace ECommerce.API.Controllers
         }
 
         [HttpPatch("updateproduct/{id}")]
-        public async Task<IActionResult> UpdateProduct(ProductDto product, int id)
+        public async Task<IActionResult> UpdateProduct(Product product, int id)
         {
             await _repository.UpdateProduct(product, id);
             return Ok();
